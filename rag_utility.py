@@ -40,15 +40,10 @@ def process_document_to_chroma_db(file_name):
         embedding=embedding,
         persist_directory=f"{working_dir}/doc_vectorstore"
     )
-    return 0
+    return vectordb
 
 
-def answer_question(user_question):
-    # Load the persistent Chroma vector database
-    vectordb = Chroma(
-        persist_directory=f"{working_dir}/doc_vectorstore",
-        embedding_function=embedding
-    )
+def answer_question(user_question,vectordb):
     # Create a retriever for document search
     retriever = vectordb.as_retriever()
 
