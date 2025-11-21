@@ -37,8 +37,7 @@ def process_document_to_chroma_db(file_name):
     # Store the document chunks in a Chroma vector database
     vectordb = Chroma.from_documents(
         documents=texts,
-        embedding=embedding,
-        persist_directory=f"{working_dir}/doc_vectorstore"
+        embedding=embedding
     )
     return vectordb
 
