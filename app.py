@@ -18,10 +18,8 @@ if "vectordb" not in st.session_state:
 uploaded_file = st.file_uploader("Upload a PDF file", type=["pdf"])
 
 if uploaded_file is not None:
-    # define save path
-    save_path = os.path.join(working_dir, uploaded_file.name)
     #  save the file
-    with open(save_path, "wb") as f:
+    with open(uploaded_file.name, "wb") as f:
         f.write(uploaded_file.getbuffer())
 
     st.session_state.vectordb = process_document_to_chroma_db(uploaded_file.name)

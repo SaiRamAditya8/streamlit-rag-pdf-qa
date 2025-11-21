@@ -26,7 +26,7 @@ llm = ChatOpenAI(
 
 def process_document_to_chroma_db(file_name):
     # Load the PDF document using UnstructuredPDFLoader
-    loader = UnstructuredPDFLoader(f"{working_dir}/{file_name}")
+    loader = UnstructuredPDFLoader(file_name)
     documents = loader.load()
     # Split the text into chunks for embedding
     text_splitter = RecursiveCharacterTextSplitter(
