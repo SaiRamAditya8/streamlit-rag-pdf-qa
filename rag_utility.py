@@ -47,17 +47,26 @@ def process_document_to_chroma_db(pdf_paths, chunk_size=1500, chunk_overlap=200)
     return vectordb
 
 
-def answer_question(user_question,vectordb):
-    # Create a retriever for document search
-    retriever = vectordb.as_retriever()
+def answer_with_citations(question, vectordb):
+    retriever = vectordb.as_retriever(search_kwargs={"k": 4})
 
-    # Create a RetrievalQA chain to answer user questions using Llama-3.3-70B
     qa_chain = RetrievalQA.from_chain_type(
         llm=llm,
         chain_type="stuff",
         retriever=retriever,
+        return_source_documents=True
     )
-    response = qa_chain.invoke({"query": user_question})
-    answer = response["result"]
 
-    return answer
+    result = qa_chain.invoke({"query": question})
+
+    answer = result["result"]
+    docs = result["source_documents"]
+
+    sources = []
+    for d in docs:
+        sources.append({
+            "source": d.metadata.get("source", "unknown"),
+            "page": d.metadata.get("page", "unknown")
+        })
+
+    return answer, sources
