@@ -15,17 +15,18 @@ if "vectordb" not in st.session_state:
     st.session_state.vectordb = None
 
 # file uploader widget
-uploaded_file = st.file_uploader("Upload a PDF file", type=["pdf"])
+uploaded_files = st.file_uploader("Upload a PDF file", type=["pdf"], accept_multiple_files=True)
 
-if uploaded_file is not None:
-    #file path to save the uploaded file
-    tmp_path = os.path.join(working_dir, uploaded_file.name)
-    #  save the file
-    with open(tmp_path, "wb") as f:
-        f.write(uploaded_file.getbuffer())
+if uploaded_files:
+    temp_paths = []
+    for uf in uploaded_files:
+        path = f"tmp_{uf.name}"
+        with open(path, "wb") as f:
+            f.write(uf.getbuffer())
+        temp_paths.append(path)
 
-    st.session_state.vectordb = process_document_to_chroma_db(tmp_path)
-    st.info("Document Processed Successfully")
+    st.session_state.vectordb = process_document_to_chroma_db(temp_paths)
+    st.success(f"Processed {len(temp_paths)} documents into vector DB.")
 
 # text widget to get user input
 user_question = st.text_area("Ask your question about the document")

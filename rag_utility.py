@@ -24,21 +24,26 @@ llm = ChatOpenAI(
 )
 
 
-def process_document_to_chroma_db(file_path):
-    # Load the PDF document using UnstructuredPDFLoader
-    loader = PyPDFLoader(file_path)
-    documents = loader.load()
-    # Split the text into chunks for embedding
+def process_document_to_chroma_db(pdf_paths, chunk_size=1500, chunk_overlap=200):
+    all_chunks = []
+
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=2000,
-        chunk_overlap=200
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
     )
-    texts = text_splitter.split_documents(documents)
-    # Store the document chunks in a Chroma vector database
-    vectordb = Chroma.from_documents(
-        documents=texts,
-        embedding=embedding
-    )
+
+    for pdf_path in pdf_paths:
+        loader = PyPDFLoader(pdf_path)
+        docs = loader.load()
+
+        for d in docs:
+            d.metadata["source"] = os.path.basename(pdf_path)
+            d.metadata["page"] = d.metadata.get("page", "unknown")
+
+        chunks = text_splitter.split_documents(docs)
+        all_chunks.extend(chunks)
+
+    vectordb = Chroma.from_documents(all_chunks, embedding)
     return vectordb
 
 
